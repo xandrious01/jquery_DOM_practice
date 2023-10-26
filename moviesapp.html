@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet"
+        href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
+  <style>
+
+  </style>
+</head>
+<body>
+    <form>
+        <label for="movieName"> Movie Title: </label>
+        <input type="text" name="movieName" id="movieName" placeholder="Enter movie name here">
+        <label for="movieRating"> Movie Rating: </label>
+        <input type="number" name="movieRating" id="movieRating">
+        <button type="submit" id="submit">Add Movie</button>
+    </form>
+    <ol id="movies">
+    </ol>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script>
+$("submit").on("submit", handleSubmit);
+function handleSubmit(e){
+e.preventDefault();
+let newMovie = {
+    name : $("#movieName").value,
+    rating : $("#movieRating").value
+};
+$("#movies").append("<li></li>")
+
+}
+
+</script>
+</body>
+<html>
