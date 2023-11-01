@@ -5,32 +5,156 @@
   <title>Document</title>
   <link rel="stylesheet"
         href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
-  <style>
-
+    <style>
+        
   </style>
 </head>
 <body>
-    <form>
-        <label for="movieName"> Movie Title: </label>
-        <input type="text" name="movieName" id="movieName" placeholder="Enter movie name here">
-        <label for="movieRating"> Movie Rating: </label>
-        <input type="number" name="movieRating" id="movieRating">
-        <button type="submit" id="submit">Add Movie</button>
-    </form>
-    <ol id="movies">
-    </ol>
+<h1 class="display-3 mx-6 py-2">List your Favorite Movies Here!</h1>
+<div class="container">
+    <div class="row justify-content-start">
+        <div class="col-sm-11 col-md-10 col-lg-8">
+            <div id="formDiv" class="mx-4">
+                <div class="my-2 py-1">
+                    <form id="addMovie">
+                    <label for="movieName" class="h5"> Movie Title: </label>
+                    <input type="text" class="form-control" name="movieName" id="movieName" placeholder="Movie Title">
+                </div>
+                <div class="my-2 py-1">
+                    <label for="movieRating" class="h5"> Movie Rating: </label>
+                    <input type="number" class="form-control" name="movieRating" id="movieRating">
+                </div>
+                <button type="submit" id="submit" class="btn btn-lg btn-dark">Add Movie</button>
+            </form>
+        </div>
+    </div>
+    <div class="row justify-content-end">
+    <div class="col-6 align-self-start">
+        <button id="sortAZ" class="btn btn-primary btn-sm">Sort A-Z</button>
+        <button id="sortRating" class="btn btn-primary btn-sm">Sort By Rating</button>
+    </div>
+</div>
+         <table id="movies" class="table table-striped shadow-sm">
+            <thead>
+                <tr>
+                    <th>Movie Title</th>
+                    <th>Rating</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+    </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <script>
-$("submit").on("submit", handleSubmit);
-function handleSubmit(e){
-e.preventDefault();
-let newMovie = {
-    name : $("#movieName").value,
-    rating : $("#movieRating").value
-};
-$("#movies").append("<li></li>")
+$(function() {
 
+$("#addMovie").on("submit", handleSubmit);
+
+function handleSubmit(e){
+e.preventDefault(); 
+if((($("#movieName").val().length > 2) && ($("#movieRating").val() <= 10) && ($("#movieRating").val() > 0))) {
+new Movie($("#movieName").val(), $("#movieRating").val());
+$("#movieName").val('');
+$("#movieRating").val('');
+} else if ($("#movieName").val() && ($("#movieRating").val() > 10) || ($("#movieRating").val() < 1)) {
+    alert("Please enter a rating 1-10");
+} else if ($("#movieName").val().length < 2) {
+    alert("Please enter a movie title");
 }
+}
+
+const movieList = [];
+
+class Movie {
+    constructor (title, rating) {
+        this.title = title;
+        this.rating = rating;
+        this.id = Date.now();
+        this.createRow();
+        this.addToTable();
+        this.addToList();
+    }
+
+    createRow(){
+        const $newRow = $("<tr></tr>");
+        $newRow.id = this.id;
+        $newRow.attr("class", this.id);
+        const movieCell = $("<td></td>").attr("class", this.id).text(this.title);
+        const ratingCell = $("<td></td>").attr("class", this.id).text(this.rating);
+        const removeCell = $("<td></td>").attr("class", this.id)
+        .append($("<button>X</button>")
+        .addClass("remove")
+        .attr("class", this.id)
+        .addClass("btn btn-outline-danger btn-sm shadow-sm"));
+        $newRow.append(movieCell).append(ratingCell).append(removeCell);
+        return $newRow; 
+    }
+
+    addToTable(){
+        $('#tableBody').append(this.createRow());
+    }
+
+    addToList(){
+        movieList.push(this);
+    }
+}
+
+$('#sortAZ').on("click", sortAlphabetical);
+$('#sortRating').on("click", sortRating);
+
+function sortAlphabetical() {
+    const titles = movieList.map(movie => movie.title);
+    titles.sort();
+    displayAlphabetical(titles);
+}
+
+function displayAlphabetical(titles) {
+    $('#tableBody').children().detach();
+   
+    titles.forEach(title => {
+        for (let i of movieList) {
+            if (title === i.title) {
+                i.addToTable();
+            }
+        }
+    })
+}
+
+function sortRating() {
+    const ratings = movieList.map(movie => movie.rating);
+    ratings.sort((a,b) => b-a)
+    displayByRating(ratings);
+}
+
+function displayByRating(ratings){
+    $('#tableBody').children().detach();
+   const movieListCopy = [...movieList];
+   ratings.forEach(rating => {
+       for (let i of movieListCopy) {
+           if (rating === i.rating) {
+               i.addToTable();
+               let ind = movieListCopy.indexOf(i);
+               movieListCopy.splice(ind, 1);
+           }
+       }
+   })
+}
+
+$("table").delegate($("button.remove"), "click", handleRemove);
+
+function handleRemove(e){
+    const toRemove = $(e.target).attr("class").split(' ')[0];
+    console.log(toRemove)
+    $("tr."+toRemove).remove();
+    const ids = movieList.map(movie => movie.id);
+    const ind = ids.indexOf(toRemove*1);
+    movieList.splice(ind,1);
+    }
+    
+
+});
 
 </script>
 </body>
